@@ -38,7 +38,11 @@ const responseSchema = z.discriminatedUnion('type', [
     message: z.string().describe('A brief explanation of what the query does'),
     sql: z.string().describe('The complete, valid SQL query'),
     explanation: z.string().describe('Detailed explanation of the query'),
-    warning: z.string().optional().describe('Warning for mutations or potential issues')
+    warning: z.string().optional().describe('Warning for mutations or potential issues'),
+    requiresConfirmation: z
+      .boolean()
+      .optional()
+      .describe('Set to true for UPDATE, DELETE, DROP, TRUNCATE, or other destructive queries')
   }),
   z.object({
     type: z.literal('chart'),
@@ -68,19 +72,19 @@ const responseSchema = z.discriminatedUnion('type', [
   })
 ])
 
-import { DpSecureStorage, DpStorage } from './storage'
+import { DpStorage } from './storage'
 
 // Chat history store structure: map of connectionId -> sessions
 type ChatHistoryStore = Record<string, ChatSession[]>
 
-let aiStore: DpSecureStorage<{ aiConfig: AIConfig | null }> | null = null
+let aiStore: DpStorage<{ aiConfig: AIConfig | null }> | null = null
 let chatStore: DpStorage<{ chatHistory: ChatHistoryStore }> | null = null
 
 /**
  * Initialize the AI config and chat stores
  */
 export async function initAIStore(): Promise<void> {
-  aiStore = await DpSecureStorage.create<{ aiConfig: AIConfig | null }>({
+  aiStore = await DpStorage.create<{ aiConfig: AIConfig | null }>({
     name: 'data-peek-ai-config',
     defaults: {
       aiConfig: null
@@ -209,7 +213,11 @@ Based on the user's request, respond with ONE of these types:
 1. **query** - When user asks for data or wants to run a query
    - Generate valid ${dbType} SQL
    - Include LIMIT 100 for SELECT queries unless specified
-   - Add warning for mutations (INSERT/UPDATE/DELETE)
+   - **CRITICAL: For UPDATE, DELETE, DROP, TRUNCATE, or any destructive operation:**
+     - Set \`requiresConfirmation: true\`
+     - Add a clear warning explaining the impact
+     - The query will NOT be auto-executed - user must manually review and run it
+   - For INSERT queries, include a warning but requiresConfirmation is optional
 
 2. **chart** - When user asks to visualize, chart, graph, or plot data
    - Choose appropriate chartType: bar (comparisons), line (time trends), pie (proportions ≤8 items), area (cumulative)

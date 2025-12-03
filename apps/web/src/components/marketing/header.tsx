@@ -1,49 +1,47 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Database, Menu, X, Github, Star } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import { Database, Github, Menu, Star, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const navLinks = [
-  { href: '/#features', label: 'Features' },
-  { href: '/#pricing', label: 'Pricing' },
-  { href: '/#faq', label: 'FAQ' },
-]
+  { href: "https://docs.datapeek.dev/docs", label: "Docs", external: true },
+  { href: "/#features", label: "Features" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#faq", label: "FAQ" },
+];
 
 export function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[--color-background]/80 backdrop-blur-xl border-b border-[--color-border]'
-          : 'bg-transparent'
+          ? "bg-[--color-background]/80 backdrop-blur-xl border-b border-[--color-border]"
+          : "bg-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6">
         <nav className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 group"
-          >
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-[--color-accent] flex items-center justify-center group-hover:scale-110 transition-transform">
               <Database className="w-4 h-4 text-[--color-background]" />
             </div>
             <span
               className="text-lg font-semibold tracking-tight"
-              style={{ fontFamily: 'var(--font-display)' }}
+              style={{ fontFamily: "var(--font-display)" }}
             >
               data-peek
             </span>
@@ -55,8 +53,11 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
+                {...(link.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
                 className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
-                style={{ fontFamily: 'var(--font-body)' }}
+                style={{ fontFamily: "var(--font-body)" }}
               >
                 {link.label}
               </Link>
@@ -70,7 +71,7 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] hover:bg-[--color-surface] transition-colors"
-              style={{ fontFamily: 'var(--font-body)' }}
+              style={{ fontFamily: "var(--font-body)" }}
             >
               <Github className="w-4 h-4" />
               <Star className="w-3 h-3" />
@@ -89,7 +90,11 @@ export function Header() {
             className="md:hidden p-2 text-[--color-text-secondary] hover:text-[--color-text-primary]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </nav>
 
@@ -101,6 +106,9 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  {...(link.external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="text-sm text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -131,5 +139,5 @@ export function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }
