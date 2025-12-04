@@ -715,9 +715,7 @@ export function TabQueryEditor({ tabId }: TabQueryEditorProps) {
                 <Play className="size-3.5" />
               )}
               Run
-              <kbd className="ml-1.5 rounded bg-primary-foreground/20 px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-                {keys.mod}{keys.enter}
-              </kbd>
+              <kbd className="ml-1.5 rounded bg-primary-foreground/20 px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">{keys.mod}{keys.enter}</kbd>
             </Button>
             <TooltipProvider>
               <Tooltip>
@@ -753,9 +751,7 @@ export function TabQueryEditor({ tabId }: TabQueryEditorProps) {
                 >
                   <Wand2 className="size-3.5" />
                   Format
-                  <kbd className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium">
-                    {keys.mod}{keys.shift}F
-                  </kbd>
+                  <kbd className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium">{keys.mod}{keys.shift}F</kbd>
                 </Button>
                 <Button
                   variant="ghost"
