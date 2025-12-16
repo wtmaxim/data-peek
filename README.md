@@ -66,6 +66,7 @@ A minimal, fast SQL client desktop application with AI-powered querying. Built f
 - **Query Telemetry** - Detailed timing breakdown with waterfall visualization
 - **Benchmark Mode** - Run queries multiple times, get p50/p90/p99 statistics
 - **EXPLAIN Viewer** - Analyze query plans with interactive node breakdown
+- **Performance Indicator** - Detect missing indexes, N+1 patterns, and slow queries with auto-generated fix suggestions
 - **Cancel Queries** - Stop long-running queries mid-execution
 
 ### Data Management

@@ -18,6 +18,7 @@ import {
   Gauge,
   Lock,
   AppWindow,
+  Activity,
 } from 'lucide-react'
 
 const features = [
@@ -57,6 +58,12 @@ const features = [
     title: 'Query Telemetry',
     description: 'Detailed timing breakdown with waterfall visualization. Benchmark mode for P90/P95/P99 stats.',
     color: '#10b981',
+  },
+  {
+    icon: Activity,
+    title: 'Performance Indicator',
+    description: 'Detect missing indexes, N+1 patterns, and slow queries. Auto-generated index suggestions.',
+    color: '#ef4444',
   },
   {
     icon: Lock,
