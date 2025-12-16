@@ -15,6 +15,7 @@ import { initSchemaCache } from './schema-cache'
 import { registerAllHandlers } from './ipc'
 import { setForceQuit } from './app-state'
 import { windowManager } from './window-manager'
+import { initSchedulerService, stopAllSchedules } from './scheduler-service'
 
 // Store instances
 let store: DpStorage<{ connections: ConnectionConfig[] }>
@@ -58,6 +59,9 @@ app.whenReady().then(async () => {
   // Initialize AI store
   await initAIStore()
 
+  // Initialize scheduler service (needs connections store)
+  await initSchedulerService(store)
+
   // Create native application menu
   createMenu()
 
@@ -95,6 +99,7 @@ app.whenReady().then(async () => {
 app.on('before-quit', () => {
   setForceQuit(true)
   stopPeriodicChecks()
+  stopAllSchedules()
 })
 
 // Quit when all windows are closed (except macOS)

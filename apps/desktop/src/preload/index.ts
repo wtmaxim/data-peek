@@ -28,7 +28,11 @@ import type {
   MultiStatementResultWithTelemetry,
   PerformanceAnalysisResult,
   PerformanceAnalysisConfig,
-  QueryHistoryItemForAnalysis
+  QueryHistoryItemForAnalysis,
+  ScheduledQuery,
+  ScheduledQueryRun,
+  CreateScheduledQueryInput,
+  UpdateScheduledQueryInput
 } from '@shared/index'
 
 // Re-export AI types for renderer consumers
@@ -219,7 +223,42 @@ const api = {
       return () => ipcRenderer.removeListener('open-saved-queries', handler)
     }
   },
-  // AI Assistant
+  // Scheduled queries management
+  scheduledQueries: {
+    list: (): Promise<IpcResponse<ScheduledQuery[]>> =>
+      ipcRenderer.invoke('scheduled-queries:list'),
+    get: (id: string): Promise<IpcResponse<ScheduledQuery>> =>
+      ipcRenderer.invoke('scheduled-queries:get', id),
+    create: (input: CreateScheduledQueryInput): Promise<IpcResponse<ScheduledQuery>> =>
+      ipcRenderer.invoke('scheduled-queries:create', input),
+    update: (
+      id: string,
+      updates: UpdateScheduledQueryInput
+    ): Promise<IpcResponse<ScheduledQuery>> =>
+      ipcRenderer.invoke('scheduled-queries:update', { id, updates }),
+    delete: (id: string): Promise<IpcResponse<void>> =>
+      ipcRenderer.invoke('scheduled-queries:delete', id),
+    pause: (id: string): Promise<IpcResponse<ScheduledQuery>> =>
+      ipcRenderer.invoke('scheduled-queries:pause', id),
+    resume: (id: string): Promise<IpcResponse<ScheduledQuery>> =>
+      ipcRenderer.invoke('scheduled-queries:resume', id),
+    runNow: (id: string): Promise<IpcResponse<ScheduledQueryRun>> =>
+      ipcRenderer.invoke('scheduled-queries:run-now', id),
+    getRuns: (queryId: string, limit?: number): Promise<IpcResponse<ScheduledQueryRun[]>> =>
+      ipcRenderer.invoke('scheduled-queries:get-runs', { queryId, limit }),
+    getAllRuns: (limit?: number): Promise<IpcResponse<ScheduledQueryRun[]>> =>
+      ipcRenderer.invoke('scheduled-queries:get-all-runs', limit),
+    clearRuns: (queryId: string): Promise<IpcResponse<void>> =>
+      ipcRenderer.invoke('scheduled-queries:clear-runs', queryId),
+    validateCron: (expression: string): Promise<IpcResponse<{ valid: boolean; error?: string }>> =>
+      ipcRenderer.invoke('scheduled-queries:validate-cron', expression),
+    getNextRuns: (
+      expression: string,
+      count?: number,
+      timezone?: string
+    ): Promise<IpcResponse<number[]>> =>
+      ipcRenderer.invoke('scheduled-queries:get-next-runs', { expression, count, timezone })
+  },
   // Auto-updater event listeners
   updater: {
     onUpdateAvailable: (callback: (version: string) => void): (() => void) => {

@@ -1387,3 +1387,131 @@ export interface QueryHistoryItemForAnalysis {
   /** Connection ID */
   connectionId: string
 }
+
+// ============================================================================
+// SCHEDULED QUERIES
+// ============================================================================
+
+/**
+ * Cron schedule expression or preset
+ */
+export type SchedulePreset =
+  | 'every_minute'
+  | 'every_5_minutes'
+  | 'every_15_minutes'
+  | 'every_30_minutes'
+  | 'every_hour'
+  | 'every_6_hours'
+  | 'every_12_hours'
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'custom'
+
+/**
+ * Maps schedule presets to human-readable labels and cron expressions
+ */
+export const SCHEDULE_PRESETS: Record<Exclude<SchedulePreset, 'custom'>, { label: string; cron: string }> = {
+  every_minute: { label: 'Every minute', cron: '* * * * *' },
+  every_5_minutes: { label: 'Every 5 minutes', cron: '*/5 * * * *' },
+  every_15_minutes: { label: 'Every 15 minutes', cron: '*/15 * * * *' },
+  every_30_minutes: { label: 'Every 30 minutes', cron: '*/30 * * * *' },
+  every_hour: { label: 'Every hour', cron: '0 * * * *' },
+  every_6_hours: { label: 'Every 6 hours', cron: '0 */6 * * *' },
+  every_12_hours: { label: 'Every 12 hours', cron: '0 */12 * * *' },
+  daily: { label: 'Daily at midnight', cron: '0 0 * * *' },
+  weekly: { label: 'Weekly on Sunday', cron: '0 0 * * 0' },
+  monthly: { label: 'Monthly on 1st', cron: '0 0 1 * *' }
+}
+
+/**
+ * Schedule configuration for a scheduled query
+ */
+export interface ScheduleConfig {
+  /** Preset schedule type */
+  preset: SchedulePreset
+  /** Custom cron expression (when preset is 'custom') */
+  cronExpression?: string
+  /** Timezone for schedule (default: local) */
+  timezone?: string
+}
+
+/**
+ * Status of a scheduled query
+ */
+export type ScheduledQueryStatus = 'active' | 'paused' | 'error'
+
+/**
+ * Result of a scheduled query execution
+ */
+export interface ScheduledQueryRun {
+  /** Unique run identifier */
+  id: string
+  /** Scheduled query ID */
+  scheduledQueryId: string
+  /** When the run started (Unix timestamp) */
+  startedAt: number
+  /** When the run completed (Unix timestamp) */
+  completedAt?: number
+  /** Duration in milliseconds */
+  durationMs?: number
+  /** Whether the run succeeded */
+  success: boolean
+  /** Error message if failed */
+  error?: string
+  /** Number of rows returned/affected */
+  rowCount?: number
+  /** Truncated preview of results (first few rows) */
+  resultPreview?: Record<string, unknown>[]
+}
+
+/**
+ * A scheduled query that runs on a cron-like schedule
+ */
+export interface ScheduledQuery {
+  /** Unique identifier */
+  id: string
+  /** Display name for the scheduled query */
+  name: string
+  /** The SQL query to execute */
+  query: string
+  /** Optional description */
+  description?: string
+  /** Connection ID to run against (required) */
+  connectionId: string
+  /** Schedule configuration */
+  schedule: ScheduleConfig
+  /** Current status */
+  status: ScheduledQueryStatus
+  /** Whether to show desktop notifications on completion */
+  notifyOnComplete: boolean
+  /** Whether to show desktop notifications on failure */
+  notifyOnError: boolean
+  /** Maximum number of runs to keep in history */
+  maxHistoryRuns: number
+  /** Last error message (if status is 'error') */
+  lastError?: string
+  /** Next scheduled run time (Unix timestamp) */
+  nextRunAt?: number
+  /** Last run time (Unix timestamp) */
+  lastRunAt?: number
+  /** When the scheduled query was created (Unix timestamp) */
+  createdAt: number
+  /** When the scheduled query was last updated (Unix timestamp) */
+  updatedAt: number
+}
+
+/**
+ * Input for creating a new scheduled query
+ */
+export type CreateScheduledQueryInput = Omit<
+  ScheduledQuery,
+  'id' | 'status' | 'lastError' | 'nextRunAt' | 'lastRunAt' | 'createdAt' | 'updatedAt'
+>
+
+/**
+ * Input for updating a scheduled query
+ */
+export type UpdateScheduledQueryInput = Partial<
+  Omit<ScheduledQuery, 'id' | 'createdAt' | 'updatedAt'>
+>

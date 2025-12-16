@@ -19,7 +19,11 @@ import type {
   MultiStatementResultWithTelemetry,
   PerformanceAnalysisResult,
   PerformanceAnalysisConfig,
-  QueryHistoryItemForAnalysis
+  QueryHistoryItemForAnalysis,
+  ScheduledQuery,
+  ScheduledQueryRun,
+  CreateScheduledQueryInput,
+  UpdateScheduledQueryInput
 } from '@shared/index'
 
 // AI Types
@@ -233,6 +237,25 @@ interface DataPeekApi {
     delete: (id: string) => Promise<IpcResponse<void>>
     incrementUsage: (id: string) => Promise<IpcResponse<SavedQuery>>
     onOpenDialog: (callback: () => void) => () => void
+  }
+  scheduledQueries: {
+    list: () => Promise<IpcResponse<ScheduledQuery[]>>
+    get: (id: string) => Promise<IpcResponse<ScheduledQuery>>
+    create: (input: CreateScheduledQueryInput) => Promise<IpcResponse<ScheduledQuery>>
+    update: (id: string, updates: UpdateScheduledQueryInput) => Promise<IpcResponse<ScheduledQuery>>
+    delete: (id: string) => Promise<IpcResponse<void>>
+    pause: (id: string) => Promise<IpcResponse<ScheduledQuery>>
+    resume: (id: string) => Promise<IpcResponse<ScheduledQuery>>
+    runNow: (id: string) => Promise<IpcResponse<ScheduledQueryRun>>
+    getRuns: (queryId: string, limit?: number) => Promise<IpcResponse<ScheduledQueryRun[]>>
+    getAllRuns: (limit?: number) => Promise<IpcResponse<ScheduledQueryRun[]>>
+    clearRuns: (queryId: string) => Promise<IpcResponse<void>>
+    validateCron: (expression: string) => Promise<IpcResponse<{ valid: boolean; error?: string }>>
+    getNextRuns: (
+      expression: string,
+      count?: number,
+      timezone?: string
+    ) => Promise<IpcResponse<number[]>>
   }
   updater: {
     onUpdateAvailable: (callback: (version: string) => void) => () => void
