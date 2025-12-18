@@ -68,7 +68,12 @@ export function createDashboard(input: CreateDashboardInput): Dashboard {
   const dashboard: Dashboard = {
     ...input,
     id: uuid(),
-    widgets: input.widgets || [],
+    widgets: (input.widgets || []).map((w) => ({
+      ...w,
+      id: w.id || uuid(),
+      createdAt: w.createdAt || now,
+      updatedAt: w.updatedAt || now
+    })),
     tags: input.tags || [],
     layoutCols: input.layoutCols || 12,
     createdAt: now,
