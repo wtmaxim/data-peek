@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  // Redirect non-www to www for SEO consistency
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "datapeek.dev",
+          },
+        ],
+        destination: "https://www.datapeek.dev/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

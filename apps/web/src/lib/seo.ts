@@ -5,8 +5,8 @@ export const SITE_CONFIG = {
   title: 'data-peek | Fast PostgreSQL Client for Developers',
   description:
     'A lightning-fast, beautiful PostgreSQL desktop client. Query, explore, and edit your data with a keyboard-first experience. No bloat, no subscriptions.',
-  url: 'https://datapeek.dev',
-  ogImage: 'https://datapeek.dev/og-image.png',
+  url: 'https://www.datapeek.dev',
+  ogImage: 'https://www.datapeek.dev/og-image.png',
   twitterHandle: '@gillarohith',
   author: 'data-peek team',
 } as const

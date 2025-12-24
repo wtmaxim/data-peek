@@ -29,6 +29,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://datapeek.dev/sitemap.xml',
+    sitemap: 'https://www.datapeek.dev/sitemap.xml',
   }
 }

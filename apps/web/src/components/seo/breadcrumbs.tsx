@@ -13,8 +13,8 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   const breadcrumbItems = [
-    { name: 'Home', url: 'https://datapeek.dev' },
-    ...items.map((item) => ({ name: item.label, url: `https://datapeek.dev${item.href}` })),
+    { name: 'Home', url: 'https://www.datapeek.dev' },
+    ...items.map((item) => ({ name: item.label, url: `https://www.datapeek.dev${item.href}` })),
   ]
 
   return (

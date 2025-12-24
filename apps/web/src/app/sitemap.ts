@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getBlogPosts } from "@/lib/blog";
 
-const BASE_URL = "https://datapeek.dev";
+const BASE_URL = "https://www.datapeek.dev";
 
 const databases = ["postgresql", "mysql", "sql-server", "sqlite"];
 const alternatives = ["pgadmin", "dbeaver", "tableplus"];
