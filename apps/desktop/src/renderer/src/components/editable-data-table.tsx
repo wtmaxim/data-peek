@@ -165,9 +165,116 @@ export function EditableDataTable<TData extends Record<string, unknown>>({
   const isEditMode = isInEditMode(tabId)
   const pendingChanges = getPendingChangesCount(tabId)
   const newRows = getNewRows(tabId)
+  const hasChanges = pendingChanges.updates + pendingChanges.inserts + pendingChanges.deletes > 0
 
   // Check for primary key
   const hasPrimaryKey = editContext?.primaryKeyColumns && editContext.primaryKeyColumns.length > 0
+
+  // Ref to store latest handler functions (avoids stale closure in event listeners)
+  const keyboardHandlersRef = React.useRef<{
+    handleSaveChanges: () => void
+    handleDiscardChanges: () => void
+    handleToggleEditMode: () => void
+    handleAddRowWithSheet: () => void
+  }>({
+    handleSaveChanges: () => {},
+    handleDiscardChanges: () => {},
+    handleToggleEditMode: () => {},
+    handleAddRowWithSheet: () => {}
+  })
+
+  // Keyboard shortcuts for edit mode
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMeta = e.metaKey || e.ctrlKey
+      const isEditing = tabEdit?.editingCell !== null
+
+      // Cmd+S: Save changes (when in edit mode with pending changes)
+      if (isMeta && e.key === 's' && !e.shiftKey) {
+        if (isEditMode && hasChanges) {
+          e.preventDefault()
+          keyboardHandlersRef.current.handleSaveChanges()
+          return
+        }
+      }
+
+      // Escape: Exit edit mode (when not editing a cell)
+      if (e.key === 'Escape' && isEditMode && !isEditing) {
+        e.preventDefault()
+        if (hasChanges) {
+          // Has changes - let the toolbar handle the confirmation dialog
+          keyboardHandlersRef.current.handleToggleEditMode()
+        } else {
+          exitEditMode(tabId)
+        }
+        return
+      }
+
+      // Cmd+Shift+A: Add new row (when in edit mode or can edit)
+      if (isMeta && e.shiftKey && e.key === 'A') {
+        if (canEdit && hasPrimaryKey) {
+          e.preventDefault()
+          if (!isEditMode && editContext) {
+            enterEditMode(tabId, editContext)
+          }
+          keyboardHandlersRef.current.handleAddRowWithSheet()
+          return
+        }
+      }
+
+      // Cmd+Shift+Z: Discard/revert changes (when in edit mode with pending changes)
+      if (isMeta && e.shiftKey && e.key === 'Z') {
+        if (isEditMode && hasChanges) {
+          e.preventDefault()
+          keyboardHandlersRef.current.handleDiscardChanges()
+          return
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [
+    isEditMode,
+    hasChanges,
+    tabEdit?.editingCell,
+    tabId,
+    canEdit,
+    hasPrimaryKey,
+    editContext,
+    enterEditMode,
+    exitEditMode
+  ])
+
+  // Listen for menu events (for menu bar shortcuts)
+  React.useEffect(() => {
+    const cleanupSave = window.api.menu.onSaveChanges(() => {
+      if (isEditMode && hasChanges) {
+        keyboardHandlersRef.current.handleSaveChanges()
+      }
+    })
+
+    const cleanupDiscard = window.api.menu.onDiscardChanges(() => {
+      if (isEditMode && hasChanges) {
+        keyboardHandlersRef.current.handleDiscardChanges()
+      }
+    })
+
+    const cleanupAddRow = window.api.menu.onAddRow(() => {
+      if (canEdit && hasPrimaryKey) {
+        if (!isEditMode && editContext) {
+          enterEditMode(tabId, editContext)
+        }
+        keyboardHandlersRef.current.handleAddRowWithSheet()
+      }
+    })
+
+    return () => {
+      cleanupSave()
+      cleanupDiscard()
+      cleanupAddRow()
+    }
+  }, [isEditMode, hasChanges, canEdit, hasPrimaryKey, editContext, tabId, enterEditMode])
 
   // Notify parent of filter changes
   React.useEffect(() => {
@@ -382,6 +489,17 @@ export function EditableDataTable<TData extends Record<string, unknown>>({
   const handleDiscardChanges = () => {
     revertAllChanges(tabId)
   }
+
+  // Update ref with latest handlers (for keyboard shortcuts)
+  // Using useLayoutEffect ensures this runs synchronously after render
+  React.useLayoutEffect(() => {
+    keyboardHandlersRef.current = {
+      handleSaveChanges,
+      handleDiscardChanges,
+      handleToggleEditMode,
+      handleAddRowWithSheet
+    }
+  })
 
   // Build table columns
   const columns = React.useMemo<ColumnDef<TData>[]>(() => {
